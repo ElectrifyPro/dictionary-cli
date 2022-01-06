@@ -8,4 +8,6 @@ This is a simple CLI tool that fetches dictionary definitions using the API prov
 > cargo run
 hello
 [{"word":"hello","phonetic":"həˈləʊ","phonetics"...
+안녕 -l ko
+[{"word":"안녕","phonetics":[{}],"meanings"...
 ```
