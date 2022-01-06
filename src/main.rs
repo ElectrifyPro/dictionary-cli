@@ -35,7 +35,7 @@ async fn main() {
     let client = Client::new();
     let mut cache: HashMap<&str, HashMap<String, String>> = HashMap::new();
 
-    loop {
+    'outer: loop {
         let mut line = String::new();
         io::stdin().read_line(&mut line).expect("Fail");
 
@@ -43,22 +43,21 @@ async fn main() {
         let mut lang = LANG_CODES[0];
         let mut expect_lang = false;
 
-        for arg in line.split(' ') {
+        'arg_check: for arg in line.split(' ') {
             if arg.eq("-l") {
                 expect_lang = true;
             } else if expect_lang {
-                expect_lang = false;
                 let trim = arg.trim();
 
                 for code in LANG_CODES.iter() {
                     if code.eq(&trim) {
                         lang = code;
-                        break;
+                        break 'arg_check;
                     }
                 }
 
-                eprintln!("{} is not a valid language code.", lang);
-                continue;
+                eprintln!("{} is not a valid language code.", trim);
+                continue 'outer;
             } else {
                 search.push(arg);
             }
