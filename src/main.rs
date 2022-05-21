@@ -1,38 +1,27 @@
 use std::{collections::HashMap, io};
-use reqwest::Client;
-use tokio;
 
-/** Language codes:
- * en      English
- * hi      Hindi
- * es      Spanish
- * fr      French
- * ru      Russian
- * de      German
- * it      Italian
- * ko      Korean
- * pt-BR   Brazilian Portuguese
- * zh-CN   Chinese (Simplified)
- * ar      Arabic
- * tr      Turkish
-**/
+/// Language codes:
+/// en      English
+/// hi      Hindi
+/// es      Spanish
+/// fr      French
+/// ru      Russian
+/// de      German
+/// it      Italian
+/// ko      Korean
+/// pt-BR   Brazilian Portuguese
+/// zh-CN   Chinese (Simplified)
+/// ar      Arabic
+/// tr      Turkish
 const LANG_CODES: [&str; 12] = ["en", "hi", "es", "fr", "ru", "de", "it", "ko", "pt-BR", "zh-CN", "ar", "tr"];
 
-async fn send(client: &Client, query: String) {
-    match client.get(query).send().await {
-        Ok(res) => {
-            match res.text().await {
-                Ok(t) => println!("{}", t),
-                Err(e) => eprintln!("Query failed: {}", e)
-            }
-        },
-        Err(e) => eprintln!("Query failed: {}", e)
-    }
+fn send(query: &str) -> Result<String, ureq::Error> {
+    Ok(ureq::get(query)
+        .call()?
+        .into_string()?)
 }
 
-#[tokio::main]
-async fn main() {
-    let client = Client::new();
+fn main() {
     let mut cache: HashMap<&str, HashMap<String, String>> = HashMap::new();
 
     'outer: loop {
@@ -75,6 +64,9 @@ async fn main() {
             }
         }
 
-        send(&client, format!("https://api.dictionaryapi.dev/api/v2/entries/{}/{}", lang, search.join(" "))).await;
+        match send(&format!("https://api.dictionaryapi.dev/api/v2/entries/{}/{}", lang, search.join(" "))) {
+            Ok(r) => println!("{}", r),
+            Err(e) => eprintln!("Query failed: {}", e),
+        }
     }
 }
